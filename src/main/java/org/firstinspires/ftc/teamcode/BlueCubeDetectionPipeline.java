@@ -1,3 +1,11 @@
+package org.firstinspires.ftc.teamcode;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.opencv.core.*;
+import org.openftc.easyopencv.OpenCvPipeline;
+import org.opencv.imgproc.Imgproc;
+import java.util.ArrayList;
+import java.util.List;
+
 public class BlueCubeDetectionPipeline extends OpenCvPipeline {
     private Telemetry telemetry;  // Add Telemetry object
     Mat hsv = new Mat();
