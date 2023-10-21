@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(10)
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+
+    google()
+
+    maven { url "https://jitpack.io" }
+    maven { url 'https://maven.openimaj.org/' }
+    maven { url 'https://maven.ecs.soton.ac.uk/content/repositories/thirdparty/' }
+    maven { url "https://maven.pkg.jetbrains.space/public/p/compose/dev" }
+}
+
+dependencies {
+    implementation 'com.github.deltacv.EOCV-Sim:Common:3.5.2'
+    implementation 'com.github.deltacv.EOCV-Sim:Vision:3.5.2'
+
+    implementation 'com.github.deltacv:AprilTagDesktop:2.0.0-C'
+    implementation 'org.openpnp:opencv:4.7.0-0'
+}
