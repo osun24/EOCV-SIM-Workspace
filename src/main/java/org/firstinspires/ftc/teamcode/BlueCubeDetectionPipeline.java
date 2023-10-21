@@ -12,6 +12,22 @@ public class BlueCubeDetectionPipeline extends OpenCvPipeline {
     Mat mask = new Mat();
     Mat morphed = new Mat();
 
+    // Create rectangle zones for the blue cubes
+    public float side_width = 100; 
+    public float side_height = 100;
+    public float center_width = 200;
+    public float center_height = 50;
+
+    // Set center coordinates for the blue cubes
+    public float left_x = 100;
+    public float left_y = 100;
+
+    public float center_x = 200;
+    public float center_y = 100;
+
+    public float right_x = 300;
+    public float right_y = 100;
+
     public BlueCubeDetectionPipeline(Telemetry telemetry) {  // Constructor to initialize telemetry
         this.telemetry = telemetry;
     }
@@ -31,28 +47,34 @@ public class BlueCubeDetectionPipeline extends OpenCvPipeline {
         Mat hierarchy = new Mat();
         Imgproc.findContours(morphed, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
+        // Draw rectangles around the zones in green
+        Imgproc.rectangle(input, new Point(center_x, center_y), new Point(center_x + center_width, center_y + center_height), new Scalar(0, 255, 0), 1);
+        Imgproc.rectangle(input, new Point(left_x, left_y), new Point(left_x + side_width, left_y + side_height), new Scalar(0,255, 0), 1);
+        Imgproc.rectangle(input, new Point(right_x, right_y), new Point(right_x + side_width, right_y + side_height), new Scalar(0,255, 0), 1);
+
         for (MatOfPoint contour : contours) {
             Rect rect = Imgproc.boundingRect(contour);
             double centerX = rect.x + rect.width / 2.0;
             double centerY = rect.y + rect.height / 2.0;
 
-            // Telemetry data for the center coordinates of each blue object
-            telemetry.addData("CenterX", centerX);
-            telemetry.addData("CenterY", centerY);
+            // detect location 
+            if (centerX > center_x && centerX < center_x + center_width && centerY > center_y && centerY < center_y + center_height) {
+                telemetry.addData("Location", "Center");
+            } else if (centerX > left_x && centerX < left_x + side_width && centerY > left_y && centerY < left_y + side_height) {
+                telemetry.addData("Location", "Left");
+            } else if (centerX > right_x && centerX < right_x + side_width && centerY > right_y && centerY < right_y + side_height) {
+                telemetry.addData("Location", "Right");
+            } else {
+                telemetry.addData("Location", "Unknown");
+            }
 
             // Telemetry data for the area of each blue object
             telemetry.addData("Area", Imgproc.contourArea(contour));
 
-            // adjust for location identification
-            if (centerX < input.cols() / 3) {
-                telemetry.addData("Position", "Left");
-            } else if (centerX < 2 * input.cols() / 3) {
-                telemetry.addData("Position", "Center");
-            } else {
-                telemetry.addData("Position", "Right");
-            }
+            // Telemetry data for the center coordinates of each blue object
+            telemetry.addData("CenterX, CenterY", centerX + ", " + centerY);
 
-            Imgproc.rectangle(input, rect.tl(), rect.br(), new Scalar(0, 255, 0), 2);
+            Imgproc.rectangle(input, rect.tl(), rect.br(), new Scalar(255, 0, 0), 2);
         }
 
         telemetry.update();  // Ensure you update telemetry after adding data
