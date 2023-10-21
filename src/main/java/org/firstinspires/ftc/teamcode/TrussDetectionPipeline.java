@@ -6,11 +6,11 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlueCubeDetectionPipeline extends OpenCvPipeline {
+public class TrussDetectionPipeline extends OpenCvPipeline {
     private Telemetry telemetry;  // Add Telemetry object
     Mat processedImage = new Mat();
 
-    public BlueCubeDetectionPipeline(Telemetry telemetry) {  // Constructor to initialize telemetry
+    public TrussDetectionPipeline(Telemetry telemetry) {  // Constructor to initialize telemetry
         this.telemetry = telemetry;
     }
 

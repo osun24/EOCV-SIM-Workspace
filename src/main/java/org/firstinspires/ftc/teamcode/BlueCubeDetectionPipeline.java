@@ -72,7 +72,7 @@ public class BlueCubeDetectionPipeline extends OpenCvPipeline {
             telemetry.addData("Area", Imgproc.contourArea(contour));
 
             // Telemetry data for the center coordinates of each blue object
-            telemetry.addData("CenterX, CenterY", centerX + ", " + centerY);
+            telemetry.addData("CenterX, CenterY", centerX + ", " + centerY);  
 
             Imgproc.rectangle(input, rect.tl(), rect.br(), new Scalar(255, 0, 0), 2);
         }
