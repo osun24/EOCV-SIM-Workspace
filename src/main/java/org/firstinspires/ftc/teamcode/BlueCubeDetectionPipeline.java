@@ -13,20 +13,22 @@ public class BlueCubeDetectionPipeline extends OpenCvPipeline {
     Mat morphed = new Mat();
 
     // Create rectangle zones for the blue cubes
-    public float side_width = 100; 
-    public float side_height = 100;
-    public float center_width = 200;
-    public float center_height = 50;
+    public float side_width = 198; 
+    public float side_height = 214;
+    public float center_width = 300;
+    public float center_height = 204;
 
     // Set center coordinates for the blue cubes
-    public float left_x = 100;
-    public float left_y = 100;
+    public float left_x = 23;
+    public float left_y = 91;
 
-    public float center_x = 200;
-    public float center_y = 100;
+    public float center_x = 267;
+    public float center_y = 62;
 
-    public float right_x = 300;
+    public float right_x = 572;
     public float right_y = 100;
+    public Scalar lowerBlue = new Scalar(90, 72, 100);
+    public Scalar upperBlue = new Scalar(140, 255, 255);
 
     public BlueCubeDetectionPipeline(Telemetry telemetry) {  // Constructor to initialize telemetry
         this.telemetry = telemetry;
@@ -35,8 +37,6 @@ public class BlueCubeDetectionPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
-        Scalar lowerBlue = new Scalar(90, 100, 100);
-        Scalar upperBlue = new Scalar(140, 255, 255);
         Core.inRange(hsv, lowerBlue, upperBlue, mask);
         
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
@@ -57,7 +57,13 @@ public class BlueCubeDetectionPipeline extends OpenCvPipeline {
             double centerX = rect.x + rect.width / 2.0;
             double centerY = rect.y + rect.height / 2.0;
 
+            double area = Imgproc.contourArea(contour);
+
             // detect location 
+            if (area < 1000) {
+                break;
+            }
+
             if (centerX > center_x && centerX < center_x + center_width && centerY > center_y && centerY < center_y + center_height) {
                 telemetry.addData("Location", "Center");
             } else if (centerX > left_x && centerX < left_x + side_width && centerY > left_y && centerY < left_y + side_height) {
@@ -69,7 +75,7 @@ public class BlueCubeDetectionPipeline extends OpenCvPipeline {
             }
 
             // Telemetry data for the area of each blue object
-            telemetry.addData("Area", Imgproc.contourArea(contour));
+            telemetry.addData("Area", area);
 
             // Telemetry data for the center coordinates of each blue object
             telemetry.addData("CenterX, CenterY", centerX + ", " + centerY);  
