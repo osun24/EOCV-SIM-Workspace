@@ -15,10 +15,10 @@ public class RedCubeDetectionPipeline extends OpenCvPipeline {
     Mat morphed = new Mat();
 
     // Create rectangle zones for the red cubes
-    public float side_width = 198; 
-    public float side_height = 214;
+    public float side_width = 240;
+    public float side_height = 312;
     public float center_width = 300;
-    public float center_height = 204;
+    public float center_height = 330;
 
     // Set center coordinates for the red cubes
     public float left_x = 23;
@@ -31,7 +31,7 @@ public class RedCubeDetectionPipeline extends OpenCvPipeline {
     public float right_y = 100;
 
     // Adjust the HSV range for red
-    public Scalar lowerRed1 = new Scalar(0, 100, 100);
+    public Scalar lowerRed1 = new Scalar(0, 100, 24);
     public Scalar upperRed1 = new Scalar(10, 255, 255);
     public Scalar lowerRed2 = new Scalar(160, 100, 100);
     public Scalar upperRed2 = new Scalar(180, 255, 255);
