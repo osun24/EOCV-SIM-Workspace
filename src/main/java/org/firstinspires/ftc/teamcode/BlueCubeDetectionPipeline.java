@@ -32,7 +32,7 @@ public class BlueCubeDetectionPipeline implements VisionProcessor {
 
     public float right_x = 572;
     public float right_y = 100;
-    public Scalar lowerBlue = new Scalar(100, 40, 50);
+    public Scalar lowerBlue = new Scalar(50, 40, 50);
     public Scalar upperBlue = new Scalar(130, 190, 190);
 
     public enum Detection {
@@ -88,7 +88,7 @@ public class BlueCubeDetectionPipeline implements VisionProcessor {
             if (centerX > center_x && centerX < center_x + center_width && centerY > center_y && centerY < center_y + center_height) {
                 telemetry.addData("Location", "Center");
                 detected = Detection.CENTER;
-            } else if (centerX > left_x && centerX < left_x + side_width && centerY > left_y && centerY < left_y + side_height) {
+            } else if (centerX > left_x && centerX < left_x + side_width && centerY > left_y  && centerY < left_y + side_height) {
                 telemetry.addData("Location", "Left");
                 detected = Detection.LEFT;
             } else {

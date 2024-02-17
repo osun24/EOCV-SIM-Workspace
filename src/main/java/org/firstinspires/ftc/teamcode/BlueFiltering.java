@@ -16,7 +16,7 @@ public class BlueFiltering extends OpenCvPipeline {
     Mat mask = new Mat();
     Mat morphed = new Mat();
 
-    public Scalar lowerBlue = new Scalar(100, 40, 50);
+    public Scalar lowerBlue = new Scalar(50, 40, 50);
     public Scalar upperBlue = new Scalar(130, 190, 190);
 
     @Override
@@ -28,6 +28,17 @@ public class BlueFiltering extends OpenCvPipeline {
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
         Imgproc.morphologyEx(mask, morphed, Imgproc.MORPH_OPEN, kernel);
         Imgproc.morphologyEx(morphed, morphed, Imgproc.MORPH_CLOSE, kernel);
+
+        List<MatOfPoint> contours = new ArrayList<>();
+        Mat hierarchy = new Mat();
+        Imgproc.findContours(morphed, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+        for (MatOfPoint contour : contours) {
+            double area = Imgproc.contourArea(contour);
+
+            Rect rect = Imgproc.boundingRect(contour);
+            Imgproc.rectangle(morphed, rect.tl(), rect.br(), new Scalar(255, 0, 0), 2);
+        }
 
        return morphed;
     }
