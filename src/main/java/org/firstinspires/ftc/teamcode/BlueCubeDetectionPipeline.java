@@ -10,7 +10,6 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-// Currently only supports left camera - right camera may need to be added separately...
 public class BlueCubeDetectionPipeline implements VisionProcessor {
     private Telemetry telemetry;  // Add Telemetry object
     Mat hsv = new Mat();
@@ -32,8 +31,17 @@ public class BlueCubeDetectionPipeline implements VisionProcessor {
 
     public float right_x = 572;
     public float right_y = 100;
-    public Scalar lowerBlue = new Scalar(50, 40, 50);
-    public Scalar upperBlue = new Scalar(130, 190, 190);
+
+    public static int lBx = 50;
+    public static int lBy  = 40;
+    public static int lBz = 50;
+
+    public static int uBx = 130;
+    public static int uBy = 190;
+    public static int uBz = 190;
+
+    public static Scalar lowerBlue = new Scalar(lBx, lBy, lBz);
+    public static Scalar upperBlue = new Scalar(uBx, uBy, uBz);
 
     public enum Detection {
         LEFT,
@@ -65,6 +73,10 @@ public class BlueCubeDetectionPipeline implements VisionProcessor {
         Mat hierarchy = new Mat();
         Imgproc.findContours(morphed, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
+        // Define rectangles for specific zones as before
+        Rect leftRect = new Rect((int)left_x, (int)left_y, (int)side_width, (int)side_height);
+        Rect centerRect = new Rect((int)center_x, (int)center_y, (int)center_width, (int)center_height);
+
         // Draw rectangles around the zones in green
         Imgproc.rectangle(frame, new Point(center_x, center_y), new Point(center_x + center_width, center_y + center_height), new Scalar(0, 255, 0), 1);
         Imgproc.rectangle(frame, new Point(left_x, left_y), new Point(left_x + side_width, left_y + side_height), new Scalar(0,255, 0), 1);
@@ -72,6 +84,13 @@ public class BlueCubeDetectionPipeline implements VisionProcessor {
         List<MatOfPoint> valid_contours = new ArrayList<>();
 
         for (MatOfPoint contour : contours) {
+            // Calculate area within each predefined zone
+            double leftArea = calculateAreaInZone(mask, leftRect);
+            double centerArea = calculateAreaInZone(mask, centerRect);
+
+            telemetry.addData("Left Area", leftArea);
+            telemetry.addData("Center Area", centerArea);
+
             Rect rect = Imgproc.boundingRect(contour);
             double centerX = rect.x + rect.width / 2.0;
             double centerY = rect.y + rect.height / 2.0;
@@ -91,6 +110,12 @@ public class BlueCubeDetectionPipeline implements VisionProcessor {
             } else if (centerX > left_x && centerX < left_x + side_width && centerY > left_y  && centerY < left_y + side_height) {
                 telemetry.addData("Location", "Left");
                 detected = Detection.LEFT;
+            } else if (leftArea > 3000) {
+                telemetry.addData("Location", "Left (WHOLE)");
+                detected = Detection.LEFT;
+            } else if (centerArea > 3000) {
+                telemetry.addData("Location", "Left (WHOLE)");
+                detected = Detection.CENTER;
             } else {
                 telemetry.addData("Location (Assumed)", "Right");
                 detected = Detection.RIGHT;
@@ -98,7 +123,6 @@ public class BlueCubeDetectionPipeline implements VisionProcessor {
 
             // Telemetry data for the area of each blue object
             telemetry.addData("Area", area);
-            telemetry.update();
 
             Imgproc.rectangle(frame, rect.tl(), rect.br(), new Scalar(255, 0, 0), 2);
         }
@@ -119,5 +143,10 @@ public class BlueCubeDetectionPipeline implements VisionProcessor {
 
     public Detection getDetection() {
         return detected;
+    }
+
+    private double calculateAreaInZone(Mat mask, Rect zone) {
+        Mat zoneMask = mask.submat(zone);
+        return Core.countNonZero(zoneMask);
     }
 }
